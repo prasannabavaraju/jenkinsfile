@@ -15,7 +15,7 @@ pipeline {
                 script {
                     def repoUrl = 'https://github.com/prasannabavaraju/jenkinsfile.git'
                     def branch = 'feature'
-                    def filePath = 'jenkinsfile' // No leading slash
+                    def filePath = 'Jenkinsfile' // No leading slash
 
                     try {
                         sh """
