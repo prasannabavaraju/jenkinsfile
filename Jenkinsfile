@@ -1,33 +1,27 @@
 pipeline {
     agent any
-
     tools {
         maven 'mymaven'
     }
-
-    environment {
-        MY_ENV_VAR = 'Dev'
-    }
-
     stages {
-        stage('Check File in Remote Branch') {
+        stage('Check Jenkinsfile in Branches') {
             steps {
                 script {
-                    def repoUrl = 'https://github.com/prasannabavaraju/jenkinsfile.git'
-                    def branch = 'feature'
-                    def filePath = 'Jenkinsfile' // No leading slash
-
-                    try {
-                        sh """
-                            git ls-remote --exit-code --heads ${repoUrl} ${branch}
-                            git fetch ${repoUrl} ${branch}:${branch}
-                            git show ${branch}:${filePath} > /dev/null
-                        """
-                        echo "File '${filePath}' exists in branch '${branch}' of remote repo."
-                    } catch (Exception e) {
-                        echo "File '${filePath}' does NOT exist in branch '${branch}' of remote repo."
-                        // Optionally, fail the build
-                        // error("File not found in remote branch")
+                    def branches = ['master',  'feature']
+                    for (branch in branches) {
+                        retry(3) {
+                            try {
+                                echo "Checking Jenkinsfile in branch: ${branch}"
+                                // Replace the following with your actual Git command or logic
+                                sh "git fetch origin ${branch}"
+                                sh "git show origin/${branch}:Jenkinsfile"
+                                echo "Jenkinsfile found in ${branch}"
+                            } catch (err) {
+                                echo "Jenkinsfile not found in ${branch} or error occurred: ${err}"
+                                // Optionally, you can fail or continue
+                                // error("Stopping pipeline due to missing Jenkinsfile in ${branch}")
+                            }
+                        }
                     }
                 }
             }
